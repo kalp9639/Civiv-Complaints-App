@@ -1,0 +1,58 @@
+<!-- templates/complaints/view_complaints.html -->
+{% extends 'base.html' %}
+{% block title %}Your Complaints - Civic Complaints System{% endblock %}
+{% block content %}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h1>Your Complaints</h1>
+    <div class="d-flex gap-2"> <!-- Wrap buttons in a flex container -->
+        <a href="{% url 'map_view' %}" class="btn btn-outline-secondary me-2">Map View</a>
+        <a href="{% url 'submit_complaint' %}" class="btn btn-primary">Submit New Complaint</a>
+    </div>
+</div>
+
+{% if complaints %}
+<div class="row">
+  {% for complaint in complaints %}
+  <div class="col-md-6 col-lg-4 mb-4">
+    <div class="card h-100">
+      <div class="card-header bg-{{ complaint.status|lower|cut:' ' }}-subtle d-flex justify-content-between align-items-center">
+        <h5 class="mb-0">{{ complaint.get_complaint_type_display }}</h5>
+        <span class="badge {% if complaint.status == 'Pending' %}bg-danger{% elif complaint.status == 'In Progress' %}bg-primary{% else %}bg-success{% endif %}">
+          {{ complaint.status }}
+        </span>
+      </div>
+      {% if complaint.image %}
+      <img src="{{ complaint.image.url }}" class="card-img-top" alt="{{ complaint.get_complaint_type_display }} issue" style="height: 200px; object-fit: cover;">
+      {% else %}
+      <div class="card-img-top bg-light d-flex align-items-center justify-content-center" style="height: 200px;">
+        <p class="text-muted">No image available</p>
+      </div>
+      {% endif %}
+      <div class="card-body">
+        {% if complaint.description %}
+        <p class="card-text">{{ complaint.description|truncatechars:100 }}</p>
+        {% else %}
+        <p class="card-text text-muted">No description provided.</p>
+        {% endif %}
+        {% if complaint.ward_number %}
+        <p class="card-text"><small class="text-muted">Ward: {{ complaint.ward_number }}</small></p>
+        {% endif %}
+      </div>
+      <div class="card-footer bg-transparent">
+        <div class="d-flex justify-content-between align-items-center">
+          <small class="text-muted">{{ complaint.created_at|date:"F j, Y, g:i a" }}</small>
+          <a href="{% url 'complaint_detail' complaint.pk %}" class="btn btn-sm btn-outline-primary">View Details</a>
+        </div>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+</div>
+{% else %}
+<div class="alert alert-info">
+  <h4 class="alert-heading">No complaints yet!</h4>
+  <p>You haven't submitted any complaints yet. Click the button above to submit your first complaint.</p>
+</div>
+{% endif %}
+{% endblock %}
